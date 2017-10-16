@@ -1,252 +1,228 @@
 import java.io.*;
 import java.nio.ByteBuffer;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Scanner;
 
 public class TEK_tea
 {
-    final static String INPUT_FILE_PATH = "C:\\Users\\Admvoute\\IdeaProjects\\TEK_tea\\src\\input_file.txt";
-    final static String OUTPUT_FILE_PATH = "C:\\Users\\Admvoute\\IdeaProjects\\TEK_tea\\src\\output_file.txt";
-    final static String KEY_FILE_PATH = "C:\\Users\\Admvoute\\IdeaProjects\\TEK_tea\\src\\key.txt";
+    final static String TEK_INPUT_FILE_PATH = "./input_file.txt";
+    final static String TEK_OUTPUT_ENCR_FILE_PATH = "./output_encr_file.txt";
+    final static String TEK_OUTPUT_DECR_FILE_PATH = "./output_decr_file.txt";
+    final static String TEK_KEY_FILE_PATH = "./key.txt";
+    final static int TEK_BLOCK_SIZE = 4;
+    final static int TEK_BLOCKS_LENGTH = 2;
+    final static int TEK_KEY_SIZE = 4;
 
-    public static void main(String... args)
+    public static void main(String... TEK_args)
     {
-        TEK_tea tea = new TEK_tea();
-        List<byte[]> data = tea.getInputData(INPUT_FILE_PATH);
+//        log("Creating a Tiny Encryption Algorythm instance..");
+//        TEK_tea TEK_tea = new TEK_tea();
+//        log("Getting an input data..");
+//        List<byte[]> TEK_data = TEK_tea.TEK_getInputData(TEK_INPUT_FILE_PATH);
+//
+//        if (TEK_data != null)
+//        {
+//            log("Creating a TEA key..");
+//            List<byte[]> TEK_key = TEK_tea.TEK_createKey();
+//
+//            log("Saving TEA key to a file");
+//            TEK_tea.TEK_putOutputData(TEK_key, TEK_KEY_FILE_PATH);
+//
+//            log("Encrypting the data..");
+//            TEK_data = TEK_tea.TEK_encrypt(TEK_data, TEK_key);
+//
+//            log("Saving the encrypted data to a file..");
+//            TEK_tea.TEK_putOutputData(TEK_data, TEK_OUTPUT_ENCR_FILE_PATH);
+//
+//        } else
+//        {
+//            log("The input data is null");
+//        }
 
-        if (data != null)
+        log("Creating a Tiny Encryption Algorythm instance..");
+        TEK_tea TEK_tea = new TEK_tea();
+        log("Getting an input data..");
+        List<byte[]> TEK_data = TEK_tea.TEK_getInputData(TEK_OUTPUT_ENCR_FILE_PATH);
+
+        if (TEK_data != null)
         {
-            byte[] key = tea.createKey(KEY_FILE_PATH);
+            log("Reading a TEA key from a file..");
+            List<byte[]> TEK_key = TEK_tea.TEK_getKey(TEK_KEY_FILE_PATH);
 
-            if (key != null)
-            {
-                tea.putOutputData(tea.encrypt(data, key), OUTPUT_FILE_PATH);
-            }
+            log("Decrypting the data..");
+            TEK_data = TEK_tea.TEK_decrypt(TEK_data, TEK_key);
+
+            log("Saving the decrypted data to a file..");
+            TEK_tea.TEK_putOutputData(TEK_data, TEK_OUTPUT_DECR_FILE_PATH);
+
+        } else
+        {
+            log("The input data is null");
         }
-
-        int[] key = tea.getKey(KEY_FILE_PATH);
-
-        List<byte[]> dataDecrypted = tea.decrypt(tea.getInputData(OUTPUT_FILE_PATH),key);
-        tea.putOutputData(dataDecrypted, "C:\\Users\\Admvoute\\IdeaProjects\\TEK_tea\\src\\outputDecrypt_file.txt");
 
     }
 
-    List<byte[]> encrypt(List<byte[]> data, List<byte[]> key)
+    // TEK_encrypt a byte data
+    List<byte[]> TEK_encrypt(List<byte[]> TEK_data, List<byte[]> TEK_key)
     {
 
-        List<byte[]> result = new ArrayList<byte[]>();
+        List<byte[]> TEK_result = new ArrayList<byte[]>();
         // set up
-        int v0 = ByteBuffer.wrap(data.get(0)).getInt();
-        int v1 = ByteBuffer.wrap(data.get(1)).getInt();
-        int sum = 0;
+        int TEK_v0 = ByteBuffer.wrap(TEK_data.get(0)).getInt();
+        int TEK_v1 = ByteBuffer.wrap(TEK_data.get(1)).getInt();
+        int TEK_sum = 0;
         // a key schedule constant
-        int delta = 0x9e3779b9;
+        int TEK_delta = 0x9e3779b9;
         // cache key
-        int k0 = ByteBuffer.wrap(key.get(0)).getInt();
-        int k1 = ByteBuffer.wrap(key.get(1)).getInt();
-        int k2 = ByteBuffer.wrap(key.get(2)).getInt();
-        int k3 = ByteBuffer.wrap(key.get(3)).getInt();
+        int TEK_k0 = ByteBuffer.wrap(TEK_key.get(0)).getInt();
+        int TEK_k1 = ByteBuffer.wrap(TEK_key.get(1)).getInt();
+        int TEK_k2 = ByteBuffer.wrap(TEK_key.get(2)).getInt();
+        int TEK_k3 = ByteBuffer.wrap(TEK_key.get(3)).getInt();
         // basic cycle start
-        for (int i = 0; i < 32; i++)
+        for (int TEK_i = 0; TEK_i < 32; TEK_i++)
         {
-            sum += delta;
-            v0 += ((v1 << 4) + k0) ^ (v1 + sum) ^ ((v1 >> 5) + k1);
-            v1 += ((v0 << 4) + k2) ^ (v0 + sum) ^ ((v0 >> 5) + k3);
+            TEK_sum += TEK_delta;
+            TEK_v0 += ((TEK_v1 << 4) + TEK_k0) ^ (TEK_v1 + TEK_sum) ^ ((TEK_v1 >> 5) + TEK_k1);
+            TEK_v1 += ((TEK_v0 << 4) + TEK_k2) ^ (TEK_v0 + TEK_sum) ^ ((TEK_v0 >> 5) + TEK_k3);
         }
         // end cycle
-        result.add(0, ByteBuffer.allocate(4).putInt(v0).array());
-//        System.out.println(ByteBuffer.allocate(32).putInt(v0).array().length);
-        result.add(1, ByteBuffer.allocate(4).putInt(v1).array());
-//        System.out.println(ByteBuffer.allocate(32).putInt(v1).array().length);
-        return result;
+        TEK_result.add(0, ByteBuffer.allocate(TEK_BLOCK_SIZE).putInt(TEK_v0).array());
+        TEK_result.add(1, ByteBuffer.allocate(TEK_BLOCK_SIZE).putInt(TEK_v1).array());
+
+        log("The data is encrypted");
+        return TEK_result;
     }
 
-    List<byte[]> decrypt(List<byte[]> data, int[] key)
+    // TEK_decrypt a byte data
+    List<byte[]> TEK_decrypt(List<byte[]> TEK_data, List<byte[]> TEK_key)
     {
-        List<byte[]> result = new ArrayList<byte[]>();
-
-//            /* set up */
-//        uint32_t v0 = v[0];
-//        uint32_t v1 = v[1];
-//        uint32_t sum = 0xC6EF3720;
-//        uint32_t i;
-//    /* a key schedule constant */
-//        uint32_t delta = 0x9e3779b9;
-//    /* cache key */
-//        uint32_t k0 = k[0];
-//        uint32_t k1 = k[1];
-//        uint32_t k2 = k[2];
-//        uint32_t k3 = k[3];
-//    /* basic cycle start */
-//        for (i = 0; i < 32; i++)    {
-//            v1 -= ((v0 << 4) + k2) ^ (v0 + sum) ^ ((v0 >> 5) + k3);
-//            v0 -= ((v1 << 4) + k0) ^ (v1 + sum) ^ ((v1 >> 5) + k1);
-//            sum -= delta;
-//        }     /* end cycle */
-//        v[0] = v0;
-//        v[1] = v1;}
+        List<byte[]> TEK_result = new ArrayList<byte[]>();
 
         // set up
-        int v0 = ByteBuffer.wrap(data.get(0)).getInt();
-        int v1 = ByteBuffer.wrap(data.get(1)).getInt();
-        int sum = 0x9e3779b9;
+        int TEK_v0 = ByteBuffer.wrap(TEK_data.get(0)).getInt();
+        int TEK_v1 = ByteBuffer.wrap(TEK_data.get(1)).getInt();
+        int TEK_sum = 0xC6EF3720;
         // a key schedule constant
-        int delta = 0x9e3779b9;
+        int TEK_delta = 0x9e3779b9;
         // cache key
-        int k0 = key[0];
-        int k1 = key[1];
-        int k2 = key[2];
-        int k3 = key[3];
+        int TEK_k0 = ByteBuffer.wrap(TEK_key.get(0)).getInt();
+        int TEK_k1 = ByteBuffer.wrap(TEK_key.get(1)).getInt();
+        int TEK_k2 = ByteBuffer.wrap(TEK_key.get(2)).getInt();
+        int TEK_k3 = ByteBuffer.wrap(TEK_key.get(3)).getInt();
         // basic cycle start
-        for (int i = 0; i < 32; i++)
+        for (int TEK_i = 0; TEK_i < 32; TEK_i++)
         {
-            v1 -= ((v0 << 4) + k2) ^ (v0 + sum) ^ ((v0 >> 5) + k3);
-            v0 -= ((v1 << 4) + k0) ^ (v1 + sum) ^ ((v1 >> 5) + k1);
-            sum -= delta;
+            TEK_v1 -= ((TEK_v0 << 4) + TEK_k2) ^ (TEK_v0 + TEK_sum) ^ ((TEK_v0 >> 5) + TEK_k3);
+            TEK_v0 -= ((TEK_v1 << 4) + TEK_k0) ^ (TEK_v1 + TEK_sum) ^ ((TEK_v1 >> 5) + TEK_k1);
+            TEK_sum -= TEK_delta;
         }
         // end cycle
 
-        result.add(0, ByteBuffer.allocate(4).putInt(v0).array());
-//        System.out.println(ByteBuffer.allocate(32).putInt(v0).array().length);
-        result.add(1, ByteBuffer.allocate(4).putInt(v1).array());
-//        System.out.println(ByteBuffer.allocate(32).putInt(v1).array().length);
-        return result;
+        TEK_result.add(0, ByteBuffer.allocate(TEK_BLOCK_SIZE).putInt(TEK_v0).array());
+        TEK_result.add(1, ByteBuffer.allocate(TEK_BLOCK_SIZE).putInt(TEK_v1).array());
+
+        log("The data is decrypted");
+        return TEK_result;
     }
 
-    List<byte[]> getInputData(String path)
+    // get byte data from a file
+    List<byte[]> TEK_getInputData(String TEK_path)
     {
 
         try {
-            InputStream inputStream = new FileInputStream(path);
-            List result = new ArrayList<byte[]>();
+            InputStream TEK_inputStream = new FileInputStream(TEK_path);
+            List TEK_result = new ArrayList<byte[]>();
 
-//            OutputStream output = new FileOutputStream("C:\\Users\\Admvoute\\IdeaProjects\\TEK_tea\\src\\outputDecrypt_file.txt");
-//            OutputStreamWriter writer = new OutputStreamWriter(new FileOutputStream("C:\\Users\\Admvoute\\IdeaProjects\\TEK_tea\\src\\outputDecrypt_file.txt"), StandardCharsets.UTF_8);
-
-
-
-            for (int i = 0; i < 2; i++)
+            for (int TEK_i = 0; TEK_i < TEK_BLOCKS_LENGTH; TEK_i++)
             {
-                System.out.println(i);
-                byte[] bytes = new byte[4];
-                inputStream.read(bytes, 0, 4);
-                result.add(bytes);
+                byte[] TEK_bytes = new byte[TEK_BLOCK_SIZE];
+                TEK_inputStream.read(TEK_bytes, 0, TEK_BLOCK_SIZE);
+                TEK_result.add(TEK_bytes);
 
-//                output.write(bytes);
             }
 
-            for (int n = 0; n < 2; n++) {
-                System.out.println("bytes " + n);
+            log("The data is loaded from the filepath " + TEK_path);
+            return TEK_result;
 
-                for (int i = 0; i < 4; i++) {
-
-                    byte[] b;
-                    b = (byte[]) result.get(n);
-                    System.out.print(b[i] + " ");
-                }
-                System.out.println("");
-            }
-            System.out.println("");
-//            System.out.println("bytes2: " + result.get(1).toString());
-
-            File f = new File(INPUT_FILE_PATH);
-            long le = f.length();
-            System.out.println("file length " + le);
-            FileInputStream inStream = new FileInputStream(path);
-            byte[] by = Files.readAllBytes(f.toPath());
-            System.out.println("bytes length " + by.length);
-
-            for (int i = 0; i < by.length; i++) {
-
-                System.out.print(by[i] + " ");
-            }
-
-//            output.flush();
-            return result;
-
-        } catch (Exception e)
+        } catch (Exception TEK_e)
         {
-            System.out.println(e.getMessage());
-            e.printStackTrace();
+            System.out.println(TEK_e.getMessage());
+            TEK_e.printStackTrace();
         }
 
         return null;
     }
 
-    void putOutputData (List<byte[]> bytesList, String path)
+    // write byte data to a file
+    void TEK_putOutputData(List<byte[]> TEK_bytesList, String TEK_path)
     {
         try
         {
-            OutputStream outputStream = new FileOutputStream(path);
+            OutputStream TEK_outputStream = new FileOutputStream(TEK_path);
 
-            for (byte[] bytes: bytesList)
+            for (byte[] TEK_bytes: TEK_bytesList)
             {
-                outputStream.write(bytes);
-//                outputStream.write(bytes);
+                TEK_outputStream.write(TEK_bytes);
             }
 
-            outputStream.flush();
+            TEK_outputStream.flush();
+            log("The data is saved to " + TEK_path);
 
-        } catch (Exception e)
+        } catch (Exception TEK_e)
         {
-            System.out.println(e.getMessage());
-            e.printStackTrace();
+            System.out.println(TEK_e.getMessage());
+            TEK_e.printStackTrace();
         }
 
     }
 
-    byte[] createKey(String path)
+    // create a TEA key
+    List<byte[]> TEK_createKey()
     {
-        List<byte[]> keyList = new ArrayList<byte[]>();
+        List<byte[]> TEK_blockList = new ArrayList<byte[]>();
 
-        for (int n = 0; n < 4; n++)
+        for (int TEK_n = 0; TEK_n < TEK_KEY_SIZE; TEK_n++)
         {
-            byte[] block = new byte[4];
-
-            for (int i = 0; i < 4; i++)
+            byte[] TEK_block = new byte[TEK_BLOCK_SIZE];
+            for (int TEK_i = 0; TEK_i < TEK_block.length; TEK_i++)
             {
-                block[i] = (byte) (Math.random() * 255);
-                keyList[i] =
+                TEK_block[TEK_i] = (byte) (Math.random() * 255);
             }
+
+            TEK_blockList.add(TEK_n, TEK_block);
         }
 
+        log("A TEA key is generated");
+        return TEK_blockList;
+    }
+
+    // load the TEA key from a file
+    List<byte[]> TEK_getKey(String TEK_path)
+    {
         try {
+            InputStream TEK_inputStream = new FileInputStream(TEK_path);
+            List<byte[]> TEK_result = new ArrayList<byte[]>();
 
-            FileOutputStream outputStream = new FileOutputStream(path);
-            for (int key: keyList)
+            for(int TEK_n = 0; TEK_n < TEK_KEY_SIZE; TEK_n++)
             {
-                outputStream.write(key);
+                byte[] TEK_block = new byte[TEK_BLOCK_SIZE];
+                TEK_inputStream.read(TEK_block, 0, TEK_BLOCK_SIZE);
+                TEK_result.add(TEK_n, TEK_block);
             }
-            outputStream.flush();
-            return keyList;
 
-        } catch (Exception e) {
-            System.out.println(e.getMessage());
-            e.printStackTrace();
+            log("A TEA key is loaded from " + TEK_path);
+            return TEK_result;
+
+        } catch (Exception TEK_e) {
+            System.out.println(TEK_e.getMessage());
+            TEK_e.printStackTrace();
         }
-
         return null;
     }
 
-    int[] getKey(String path)
+    // write a message to console
+    static void log(String TEK_message)
     {
-        try {
-            InputStream inputStream = new FileInputStream(path);
-            int[] result = new int[4];
-            for(int i = 0; i < 4; i++)
-            {
-                result[i] = inputStream.read();
-            }
-
-            return result;
-
-        } catch (Exception e) {
-            System.out.println(e.getMessage());
-            e.printStackTrace();
-        }
-        return null;
+        System.out.println(TEK_message);
     }
 }
