@@ -15,50 +15,50 @@ public class TEK_tea
 
     public static void main(String... TEK_args)
     {
-        log("Creating a Tiny Encryption Algorythm instance..");
-        TEK_tea TEK_tea = new TEK_tea();
-        log("Getting an input data..");
-        List<byte[]> TEK_data = TEK_tea.TEK_getInputData(TEK_INPUT_FILE_PATH);
-
-        if (TEK_data != null)
-        {
-            log("Creating a TEA key..");
-            List<byte[]> TEK_key = TEK_tea.TEK_createKey();
-
-            log("Saving TEA key to a file");
-            TEK_tea.TEK_putOutputData(TEK_key, TEK_KEY_FILE_PATH);
-
-            log("Encrypting the data..");
-            TEK_data = TEK_tea.TEK_encrypt(TEK_data, TEK_key);
-
-            log("Saving the encrypted data to a file..");
-            TEK_tea.TEK_putOutputData(TEK_data, TEK_OUTPUT_ENCR_FILE_PATH);
-
-        } else
-        {
-            log("The input data is null");
-        }
-
 //        log("Creating a Tiny Encryption Algorythm instance..");
 //        TEK_tea TEK_tea = new TEK_tea();
 //        log("Getting an input data..");
-//        List<byte[]> TEK_data = TEK_tea.TEK_getInputData(TEK_OUTPUT_ENCR_FILE_PATH);
+//        List<byte[]> TEK_data = TEK_tea.TEK_getInputData(TEK_INPUT_FILE_PATH);
 //
 //        if (TEK_data != null)
 //        {
-//            log("Reading a TEA key from a file..");
-//            List<byte[]> TEK_key = TEK_tea.TEK_getKey(TEK_KEY_FILE_PATH);
+//            log("Creating a TEA key..");
+//            List<byte[]> TEK_key = TEK_tea.TEK_createKey();
 //
-//            log("Decrypting the data..");
-//            TEK_data = TEK_tea.TEK_decrypt(TEK_data, TEK_key);
+//            log("Saving TEA key to a file");
+//            TEK_tea.TEK_putOutputData(TEK_key, TEK_KEY_FILE_PATH);
 //
-//            log("Saving the decrypted data to a file..");
-//            TEK_tea.TEK_putOutputData(TEK_data, TEK_OUTPUT_DECR_FILE_PATH);
+//            log("Encrypting the data..");
+//            TEK_data = TEK_tea.TEK_encrypt(TEK_data, TEK_key);
+//
+//            log("Saving the encrypted data to a file..");
+//            TEK_tea.TEK_putOutputData(TEK_data, TEK_OUTPUT_ENCR_FILE_PATH);
 //
 //        } else
 //        {
 //            log("The input data is null");
 //        }
+
+        log("Creating a Tiny Encryption Algorythm instance..");
+        TEK_tea TEK_tea2 = new TEK_tea();
+        log("Getting an input data..");
+        List<byte[]> TEK_data2 = TEK_tea2.TEK_getInputData(TEK_OUTPUT_ENCR_FILE_PATH);
+
+        if (TEK_data2 != null)
+        {
+            log("Reading a TEA key from a file..");
+            List<byte[]> TEK_key = TEK_tea2.TEK_getKey(TEK_KEY_FILE_PATH);
+
+            log("Decrypting the data..");
+            TEK_data2 = TEK_tea2.TEK_encrypt(TEK_data2, TEK_key);
+
+            log("Saving the decrypted data to a file..");
+            TEK_tea2.TEK_putOutputData(TEK_data2, TEK_OUTPUT_DECR_FILE_PATH);
+
+        } else
+        {
+            log("The input data is null");
+        }
 
     }
 
@@ -67,21 +67,24 @@ public class TEK_tea
     {
 
         List<byte[]> TEK_result = new ArrayList<byte[]>();
+        // initiating a vector
+        int TEK_vector = 1234567890;
+        int TEK_v0 = TEK_vector;
+        int TEK_v1 = TEK_vector;
 
-        for (int i = 0; i >= TEK_data.size(); i += 2) {
+        for (int i = 0; i < TEK_data.size(); i += 2) {
 
             // set up
-            int TEK_v0 = ByteBuffer.wrap(TEK_data.get(i)).getInt();
-            int TEK_v1;
-            if ( (i + 1) >= TEK_data.size() )
+            int TEK_t0 = ByteBuffer.wrap(TEK_data.get(i)).getInt();
+            int TEK_t1;
+            if ( (i + 1) == TEK_data.size() )
             {
-                TEK_v1 = (int)(Math.random()*2147483647);
+                TEK_t1 = (int)(Math.random()*2147483647);
             } else {
-                TEK_v1 = ByteBuffer.wrap(TEK_data.get(i + 1)).getInt();
+                TEK_t1 = ByteBuffer.wrap(TEK_data.get(i + 1)).getInt();
             }
-            int TEK_sum = 0;
-            // a key schedule constant
             int TEK_delta = 0x9e3779b9;
+            int TEK_sum = 0;
             // cache key
             int TEK_k0 = ByteBuffer.wrap(TEK_key.get(0)).getInt();
             int TEK_k1 = ByteBuffer.wrap(TEK_key.get(1)).getInt();
@@ -93,45 +96,15 @@ public class TEK_tea
                 TEK_v0 += ((TEK_v1 << 4) + TEK_k0) ^ (TEK_v1 + TEK_sum) ^ ((TEK_v1 >> 5) + TEK_k1);
                 TEK_v1 += ((TEK_v0 << 4) + TEK_k2) ^ (TEK_v0 + TEK_sum) ^ ((TEK_v0 >> 5) + TEK_k3);
             }
-            // end cycle
-            TEK_result.add(0, ByteBuffer.allocate(TEK_BLOCK_SIZE).putInt(TEK_v0).array());
-            TEK_result.add(1, ByteBuffer.allocate(TEK_BLOCK_SIZE).putInt(TEK_v1).array());
+            // xor with open text
+            TEK_t0 = TEK_t0 ^ TEK_v0;
+            TEK_t1 = TEK_t1 ^ TEK_v1;
+            TEK_result.add(i, ByteBuffer.allocate(TEK_BLOCK_SIZE).putInt(TEK_t0).array());
+            TEK_result.add(i + 1, ByteBuffer.allocate(TEK_BLOCK_SIZE).putInt(TEK_t1).array());
 
         }
 
         log("The data is encrypted");
-        return TEK_result;
-    }
-
-    // TEK_decrypt a byte data
-    List<byte[]> TEK_decrypt(List<byte[]> TEK_data, List<byte[]> TEK_key)
-    {
-        List<byte[]> TEK_result = new ArrayList<byte[]>();
-
-        // set up
-        int TEK_v0 = ByteBuffer.wrap(TEK_data.get(0)).getInt();
-        int TEK_v1 = ByteBuffer.wrap(TEK_data.get(1)).getInt();
-        int TEK_sum = 0xC6EF3720;
-        // a key schedule constant
-        int TEK_delta = 0x9e3779b9;
-        // cache key
-        int TEK_k0 = ByteBuffer.wrap(TEK_key.get(0)).getInt();
-        int TEK_k1 = ByteBuffer.wrap(TEK_key.get(1)).getInt();
-        int TEK_k2 = ByteBuffer.wrap(TEK_key.get(2)).getInt();
-        int TEK_k3 = ByteBuffer.wrap(TEK_key.get(3)).getInt();
-        // basic cycle start
-        for (int TEK_i = 0; TEK_i < 32; TEK_i++)
-        {
-            TEK_v1 -= ((TEK_v0 << 4) + TEK_k2) ^ (TEK_v0 + TEK_sum) ^ ((TEK_v0 >> 5) + TEK_k3);
-            TEK_v0 -= ((TEK_v1 << 4) + TEK_k0) ^ (TEK_v1 + TEK_sum) ^ ((TEK_v1 >> 5) + TEK_k1);
-            TEK_sum -= TEK_delta;
-        }
-        // end cycle
-
-        TEK_result.add(0, ByteBuffer.allocate(TEK_BLOCK_SIZE).putInt(TEK_v0).array());
-        TEK_result.add(1, ByteBuffer.allocate(TEK_BLOCK_SIZE).putInt(TEK_v1).array());
-
-        log("The data is decrypted");
         return TEK_result;
     }
 
@@ -148,21 +121,9 @@ public class TEK_tea
             {
                 byte[] TEK_bytes = new byte[TEK_BLOCK_SIZE];
                  TEK_readResult = TEK_inputStream.read(TEK_bytes, 0, TEK_BLOCK_SIZE);
-                 // check EOF
-                if ( TEK_readResult != -1 ) {
-                    TEK_result.add(TEK_bytes);
-                }
+                 TEK_result.add(TEK_bytes);
 
             } while (TEK_readResult != -1); // check EOF
-
-
-//            for (int TEK_i = 0; TEK_i < TEK_BLOCKS_LENGTH; TEK_i++)
-//            {
-//                byte[] TEK_bytes = new byte[TEK_BLOCK_SIZE];
-//                TEK_inputStream.read(TEK_bytes, 0, TEK_BLOCK_SIZE);
-//                TEK_result.add(TEK_bytes);
-//
-//            }
 
             log("The data is loaded from the filepath " + TEK_path);
             return TEK_result;
