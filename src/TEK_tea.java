@@ -15,50 +15,50 @@ public class TEK_tea
 
     public static void main(String... TEK_args)
     {
-//        log("Creating a Tiny Encryption Algorythm instance..");
-//        TEK_tea TEK_tea = new TEK_tea();
-//        log("Getting an input data..");
-//        List<byte[]> TEK_data = TEK_tea.TEK_getInputData(TEK_INPUT_FILE_PATH);
-//
-//        if (TEK_data != null)
-//        {
-//            log("Creating a TEA key..");
-//            List<byte[]> TEK_key = TEK_tea.TEK_createKey();
-//
-//            log("Saving TEA key to a file");
-//            TEK_tea.TEK_putOutputData(TEK_key, TEK_KEY_FILE_PATH);
-//
-//            log("Encrypting the data..");
-//            TEK_data = TEK_tea.TEK_encrypt(TEK_data, TEK_key);
-//
-//            log("Saving the encrypted data to a file..");
-//            TEK_tea.TEK_putOutputData(TEK_data, TEK_OUTPUT_ENCR_FILE_PATH);
-//
-//        } else
-//        {
-//            log("The input data is null");
-//        }
-
         log("Creating a Tiny Encryption Algorythm instance..");
-        TEK_tea TEK_tea2 = new TEK_tea();
+        TEK_tea TEK_tea = new TEK_tea();
         log("Getting an input data..");
-        List<byte[]> TEK_data2 = TEK_tea2.TEK_getInputData(TEK_OUTPUT_ENCR_FILE_PATH);
+        List<byte[]> TEK_data = TEK_tea.TEK_getInputData(TEK_INPUT_FILE_PATH);
 
-        if (TEK_data2 != null)
+        if (TEK_data != null)
         {
-            log("Reading a TEA key from a file..");
-            List<byte[]> TEK_key = TEK_tea2.TEK_getKey(TEK_KEY_FILE_PATH);
+            log("Creating a TEA key..");
+            List<byte[]> TEK_key = TEK_tea.TEK_createKey();
 
-            log("Decrypting the data..");
-            TEK_data2 = TEK_tea2.TEK_encrypt(TEK_data2, TEK_key);
+            log("Saving TEA key to a file");
+            TEK_tea.TEK_putOutputData(TEK_key, TEK_KEY_FILE_PATH);
 
-            log("Saving the decrypted data to a file..");
-            TEK_tea2.TEK_putOutputData(TEK_data2, TEK_OUTPUT_DECR_FILE_PATH);
+            log("Encrypting the data..");
+            TEK_data = TEK_tea.TEK_encrypt(TEK_data, TEK_key);
+
+            log("Saving the encrypted data to a file..");
+            TEK_tea.TEK_putOutputData(TEK_data, TEK_OUTPUT_ENCR_FILE_PATH);
 
         } else
         {
             log("The input data is null");
         }
+
+//        log("Creating a Tiny Encryption Algorythm instance..");
+//        TEK_tea TEK_tea2 = new TEK_tea();
+//        log("Getting an input data..");
+//        List<byte[]> TEK_data2 = TEK_tea2.TEK_getInputData(TEK_OUTPUT_ENCR_FILE_PATH);
+//
+//        if (TEK_data2 != null)
+//        {
+//            log("Reading a TEA key from a file..");
+//            List<byte[]> TEK_key = TEK_tea2.TEK_getKey(TEK_KEY_FILE_PATH);
+//
+//            log("Decrypting the data..");
+//            TEK_data2 = TEK_tea2.TEK_encrypt(TEK_data2, TEK_key);
+//
+//            log("Saving the decrypted data to a file..");
+//            TEK_tea2.TEK_putOutputData(TEK_data2, TEK_OUTPUT_DECR_FILE_PATH);
+//
+//        } else
+//        {
+//            log("The input data is null");
+//        }
 
     }
 
