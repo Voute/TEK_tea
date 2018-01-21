@@ -1,3 +1,5 @@
+import security.TEK_UserAuthorization;
+
 import java.io.*;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
@@ -15,29 +17,56 @@ public class TEK_tea
 
     public static void main(String... TEK_args)
     {
-        log("Creating a Tiny Encryption Algorythm instance..");
-        TEK_tea TEK_tea = new TEK_tea();
-        log("Getting an input data..");
-        List<byte[]> TEK_data = TEK_tea.TEK_getInputData(TEK_INPUT_FILE_PATH);
+        TEK_UserAuthorization auth = new TEK_UserAuthorization();
+        System.out.println(auth.calculateAddition(12345l));
+        int g = 0b110000000000000000000000000001;
+//        int bits = 2;
+//        g = g << bits;
+//        Byte.toString(g);
+//        g = 1234;
+        int addition = 0b1 << 31;
+        System.out.println(Integer.toBinaryString(addition));
+        System.out.println(g);
+        System.out.println(Integer.toBinaryString(g));
+        System.out.println(Integer.bitCount(g));
 
-        if (TEK_data != null)
-        {
-            log("Creating a TEA key..");
-            List<byte[]> TEK_key = TEK_tea.TEK_createKey();
 
-            log("Saving TEA key to a file");
-            TEK_tea.TEK_putOutputData(TEK_key, TEK_KEY_FILE_PATH);
+        InputStream TEK_inputStream = null;
+        try {
+            TEK_inputStream = new FileInputStream("C:\\Users\\Admvoute\\IdeaProjects\\TEK_tea\\out\\production\\TEK_tea\\input_file.txt");
 
-            log("Encrypting the data..");
-            TEK_data = TEK_tea.TEK_encrypt(TEK_data, TEK_key);
+            InputStreamReader inputReader = new InputStreamReader(TEK_inputStream);
+            int r = inputReader.read();
+            System.out.println(r);
+            r = inputReader.read();
+            System.out.println(r);
 
-            log("Saving the encrypted data to a file..");
-            TEK_tea.TEK_putOutputData(TEK_data, TEK_OUTPUT_ENCR_FILE_PATH);
-
-        } else
-        {
-            log("The input data is null");
-        }
+    } catch (Exception e) {
+    e.printStackTrace();
+}
+//        log("Creating a Tiny Encryption Algorythm instance..");
+//        TEK_tea TEK_tea = new TEK_tea();
+//        log("Getting an input data..");
+//        List<byte[]> TEK_data = TEK_tea.TEK_getInputData(TEK_INPUT_FILE_PATH);
+//
+//        if (TEK_data != null)
+//        {
+//            log("Creating a TEA key..");
+//            List<byte[]> TEK_key = TEK_tea.TEK_createKey();
+//
+//            log("Saving TEA key to a file");
+//            TEK_tea.TEK_putOutputData(TEK_key, TEK_KEY_FILE_PATH);
+//
+//            log("Encrypting the data..");
+//            TEK_data = TEK_tea.TEK_encrypt(TEK_data, TEK_key);
+//
+//            log("Saving the encrypted data to a file..");
+//            TEK_tea.TEK_putOutputData(TEK_data, TEK_OUTPUT_ENCR_FILE_PATH);
+//
+//        } else
+//        {
+//            log("The input data is null");
+//        }
 
 //        log("Creating a Tiny Encryption Algorythm instance..");
 //        TEK_tea TEK_tea2 = new TEK_tea();
@@ -114,6 +143,10 @@ public class TEK_tea
 
         try {
             InputStream TEK_inputStream = new FileInputStream(TEK_path);
+            InputStreamReader inputReader = new InputStreamReader(TEK_inputStream);
+            inputReader.read();
+            BufferedReader reader = new BufferedReader(inputReader);
+//            reader.
             List TEK_result = new ArrayList<byte[]>();
 
             int TEK_readResult = 0;
@@ -121,6 +154,7 @@ public class TEK_tea
             {
                 byte[] TEK_bytes = new byte[TEK_BLOCK_SIZE];
                  TEK_readResult = TEK_inputStream.read(TEK_bytes, 0, TEK_BLOCK_SIZE);
+
                  TEK_result.add(TEK_bytes);
 
             } while (TEK_readResult != -1); // check EOF
